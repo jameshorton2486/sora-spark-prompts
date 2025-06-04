@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,7 +179,7 @@ const Index = () => {
   };
 
   // Auto-generate prompt when selections change
-  useState(() => {
+  useEffect(() => {
     generatePrompt();
   }, [ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette]);
 
@@ -213,6 +213,9 @@ const Index = () => {
                     <Users className="h-5 w-5 text-amber-600" />
                     Subject Identity
                   </CardTitle>
+                  <CardDescription className="text-stone-600">
+                    Example: "Black woman in her 30s with freckles and glowing skin"
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -277,6 +280,9 @@ const Index = () => {
               <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-stone-800">Lighting & Atmosphere</CardTitle>
+                  <CardDescription className="text-stone-600">
+                    Example: "Soft directional studio light with highlights on cheekbones"
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div>
@@ -299,6 +305,9 @@ const Index = () => {
               <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-stone-800">Makeup & Accessories</CardTitle>
+                  <CardDescription className="text-stone-600">
+                    Example: "Abstract gold metallic makeup and pearl earrings"
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -320,6 +329,9 @@ const Index = () => {
               <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-stone-800">Wardrobe & Style</CardTitle>
+                  <CardDescription className="text-stone-600">
+                    Example: "Wearing a black velvet jacket and antique brooch"
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -357,6 +369,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Camera & Lens</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Taken with a compact digital camera from the early 1990s"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={cameraStyle} onValueChange={setCameraStyle}>
@@ -375,6 +390,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Pose & Expression</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Short wavy hair covers one eye, soft smile, leaning on bench"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={poseExpression} onValueChange={setPoseExpression}>
@@ -396,6 +414,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Setting</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Dark background of a balcony at night in a city"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={setting} onValueChange={setSetting}>
@@ -414,6 +435,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Composition</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Half-body portrait, shallow focus on the eyes, 16:9 format"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={composition} onValueChange={setComposition}>
@@ -435,6 +459,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Mood & Tone</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Dramatic, minimalistic, high-fashion editorial tone"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={moodTone} onValueChange={setMoodTone}>
@@ -453,6 +480,9 @@ const Index = () => {
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-stone-800">Color Palette</CardTitle>
+                    <CardDescription className="text-stone-600">
+                      Example: "Soft charcoal and muted sage with antique gold accents"
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Select value={colorPalette} onValueChange={setColorPalette}>
