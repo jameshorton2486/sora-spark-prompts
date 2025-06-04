@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,16 +17,21 @@ import { AiEnhancer } from "@/components/AiEnhancer";
 
 type SubjectType = "person" | "object" | "landscape" | "abstract" | "animal" | "scene" | "";
 type StyleType = "realistic" | "cinematic" | "surreal" | "vintage" | "fantasy" | "minimalist" | "";
+type MoodType = "peaceful" | "dramatic" | "emotional" | "dark" | "whimsical" | "";
+type CameraStyleType = "closeup" | "wide" | "portrait" | "vintage" | "soft" | "";
 
 const Index = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [subjectInput, setSubjectInput] = useState("");
   const [detectedSubjectType, setDetectedSubjectType] = useState<SubjectType>("");
   const [selectedStyle, setSelectedStyle] = useState<StyleType>("");
+  const [selectedMood, setSelectedMood] = useState<MoodType>("");
+  const [selectedCameraStyle, setSelectedCameraStyle] = useState<CameraStyleType>("");
   const [makeItSpectacular, setMakeItSpectacular] = useState(false);
   const [spectacularIntensity, setSpectacularIntensity] = useState([1]); // 0=Subtle, 1=Cinematic, 2=Wild
   const [showAdvancedTips, setShowAdvancedTips] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [showAdvancedCamera, setShowAdvancedCamera] = useState(false);
   const [apiKey, setApiKey] = useState("");
   
   // Subject Identity
@@ -61,6 +67,23 @@ const Index = () => {
 
   // Color Palette
   const [colorPalette, setColorPalette] = useState("");
+
+  // Advanced Camera Settings
+  const [shallowDepth, setShallowDepth] = useState(false);
+  const [rimLighting, setRimLighting] = useState(false);
+  const [macroDetail, setMacroDetail] = useState(false);
+
+  // Data arrays
+  const ageRanges = ["Child (5-12)", "Teen (13-19)", "Young Adult (20-29)", "Adult (30-49)", "Middle-aged (50-65)", "Senior (65+)"];
+  const genders = ["Woman", "Man", "Non-binary", "Androgynous"];
+  const ethnicities = ["Asian", "Black/African", "Caucasian", "Hispanic/Latino", "Middle Eastern", "Mixed Heritage", "Indigenous"];
+  const facialFeaturesOptions = ["Freckles", "Dimples", "High Cheekbones", "Strong Jawline", "Soft Features", "Angular Features", "Round Face", "Oval Face"];
+  const lightingOptions = ["Natural sunlight", "Golden hour", "Blue hour", "Soft window light", "Dramatic shadows", "Rim lighting", "Candlelight", "Neon lighting", "Studio lighting"];
+  const cameraStyles = ["35mm film", "Medium format", "Polaroid", "Digital SLR", "Mirrorless", "Phone camera", "Vintage camera", "Professional studio"];
+  const settings = ["Urban street", "Natural landscape", "Indoor studio", "Home interior", "Coffee shop", "Library", "Beach", "Forest", "Mountain", "Desert", "City rooftop"];
+  const compositions = ["Rule of thirds", "Center composition", "Close-up portrait", "Wide landscape", "Low angle", "High angle", "Side profile", "Over shoulder"];
+  const moodTones = ["Serene", "Energetic", "Melancholic", "Joyful", "Mysterious", "Romantic", "Powerful", "Dreamy"];
+  const colorPalettes = ["Warm earth tones", "Cool blues", "Monochrome", "Vibrant colors", "Pastel shades", "High contrast", "Muted tones", "Golden hues"];
 
   // Style definitions
   const styles = [
@@ -100,6 +123,24 @@ const Index = () => {
       icon: Square, 
       description: "Clean, simple, focused"
     }
+  ];
+
+  // Mood options
+  const moods = [
+    { id: "peaceful", name: "Peaceful", emoji: "😊", description: "Calm and serene" },
+    { id: "dramatic", name: "Dramatic", emoji: "😮", description: "Bold and intense" },
+    { id: "emotional", name: "Emotional", emoji: "😢", description: "Touching and heartfelt" },
+    { id: "dark", name: "Dark & Mysterious", emoji: "😈", description: "Moody and enigmatic" },
+    { id: "whimsical", name: "Whimsical", emoji: "🌸", description: "Playful and magical" }
+  ];
+
+  // Camera style options
+  const cameraStyleOptions = [
+    { id: "closeup", name: "Close-Up", emoji: "📷", description: "Focus on one subject" },
+    { id: "wide", name: "Wide Shot", emoji: "🏞️", description: "Full landscape/scene" },
+    { id: "portrait", name: "Portrait Style", emoji: "🎥", description: "Ideal for people" },
+    { id: "vintage", name: "Vintage Film Look", emoji: "🎞️", description: "Classic film aesthetic" },
+    { id: "soft", name: "Soft Focus / Bokeh", emoji: "🖼️", description: "Dreamy blurred background" }
   ];
 
   // New data for enhanced features
@@ -272,6 +313,40 @@ const Index = () => {
     }
   };
 
+  const getMoodModifier = (mood: MoodType): string => {
+    switch (mood) {
+      case "peaceful":
+        return "serene, calm, peaceful atmosphere";
+      case "dramatic":
+        return "dramatic, bold, intense mood";
+      case "emotional":
+        return "emotional, touching, heartfelt";
+      case "dark":
+        return "dark, mysterious, moody atmosphere";
+      case "whimsical":
+        return "whimsical, playful, magical feeling";
+      default:
+        return "";
+    }
+  };
+
+  const getCameraStyleModifier = (cameraStyle: CameraStyleType): string => {
+    switch (cameraStyle) {
+      case "closeup":
+        return "close-up shot, macro photography, detailed focus";
+      case "wide":
+        return "wide shot, expansive view, full scene";
+      case "portrait":
+        return "portrait style, shallow depth of field, subject focus";
+      case "vintage":
+        return "vintage film look, grain, classic aesthetic";
+      case "soft":
+        return "soft focus, bokeh effect, dreamy background blur";
+      default:
+        return "";
+    }
+  };
+
   const getSpectacularEnhancer = (): string => {
     const intensity = spectacularIntensity[0];
     let enhancers: string[];
@@ -327,6 +402,23 @@ const Index = () => {
       if (styleModifier) components.push(styleModifier);
     }
 
+    // Add mood modifier
+    if (selectedMood) {
+      const moodModifier = getMoodModifier(selectedMood);
+      if (moodModifier) components.push(moodModifier);
+    }
+
+    // Add camera style modifier
+    if (selectedCameraStyle) {
+      const cameraStyleModifier = getCameraStyleModifier(selectedCameraStyle);
+      if (cameraStyleModifier) components.push(cameraStyleModifier);
+    }
+
+    // Add advanced camera settings
+    if (shallowDepth) components.push("shallow depth of field");
+    if (rimLighting) components.push("rim lighting");
+    if (macroDetail) components.push("macro detail");
+
     if (makeItSpectacular) {
       const enhancer = getSpectacularEnhancer();
       components.push(enhancer);
@@ -349,6 +441,8 @@ const Index = () => {
     setSubjectInput("");
     setDetectedSubjectType("");
     setSelectedStyle("");
+    setSelectedMood("");
+    setSelectedCameraStyle("");
     setAgeRange("");
     setGender("");
     setEthnicity("");
@@ -367,6 +461,10 @@ const Index = () => {
     setMakeItSpectacular(false);
     setSpectacularIntensity([1]);
     setShowAdvancedOptions(false);
+    setShowAdvancedCamera(false);
+    setShallowDepth(false);
+    setRimLighting(false);
+    setMacroDetail(false);
   };
 
   useEffect(() => {
@@ -380,7 +478,7 @@ const Index = () => {
 
   useEffect(() => {
     generatePrompt();
-  }, [subjectInput, selectedStyle, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular, spectacularIntensity]);
+  }, [subjectInput, selectedStyle, selectedMood, selectedCameraStyle, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular, spectacularIntensity, shallowDepth, rimLighting, macroDetail]);
 
   const relevantSections = getRelevantSections(detectedSubjectType);
 
@@ -575,12 +673,128 @@ const Index = () => {
                   </Card>
                 )}
 
+                {/* Step 4: Choose Mood */}
+                {subjectInput && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-stone-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                        Choose Mood (Optional)
+                      </CardTitle>
+                      <CardDescription className="text-stone-600">
+                        Set the emotional tone of your image
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        {moods.map((mood) => (
+                          <button
+                            key={mood.id}
+                            onClick={() => setSelectedMood(mood.id as MoodType)}
+                            className={`p-3 rounded-lg border-2 transition-all text-center ${
+                              selectedMood === mood.id
+                                ? "border-amber-500 bg-amber-50"
+                                : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                            }`}
+                          >
+                            <div className="text-2xl mb-1">{mood.emoji}</div>
+                            <div className="font-medium text-stone-800 text-sm">{mood.name}</div>
+                            <p className="text-xs text-stone-600 mt-1">{mood.description}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Step 5: Select Camera Style */}
+                {subjectInput && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-stone-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                        Select Camera Style (Optional)
+                      </CardTitle>
+                      <CardDescription className="text-stone-600">
+                        Choose how you want to frame your shot
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {cameraStyleOptions.map((camera) => (
+                          <button
+                            key={camera.id}
+                            onClick={() => setSelectedCameraStyle(camera.id as CameraStyleType)}
+                            className={`p-3 rounded-lg border-2 transition-all text-left ${
+                              selectedCameraStyle === camera.id
+                                ? "border-amber-500 bg-amber-50"
+                                : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">{camera.emoji}</span>
+                              <span className="font-medium text-stone-800 text-sm">{camera.name}</span>
+                            </div>
+                            <p className="text-xs text-stone-600">{camera.description}</p>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center space-x-2 pt-4 border-t border-stone-200">
+                        <Switch
+                          id="advanced-camera"
+                          checked={showAdvancedCamera}
+                          onCheckedChange={setShowAdvancedCamera}
+                        />
+                        <label htmlFor="advanced-camera" className="text-sm font-medium text-stone-700">
+                          📏 Advanced Camera Settings
+                        </label>
+                      </div>
+
+                      {showAdvancedCamera && (
+                        <div className="space-y-3 p-4 bg-stone-50/50 rounded-lg border border-stone-200">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="shallow-depth"
+                              checked={shallowDepth}
+                              onCheckedChange={setShallowDepth}
+                            />
+                            <label htmlFor="shallow-depth" className="text-sm text-stone-700">
+                              Shallow depth of field
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="rim-lighting"
+                              checked={rimLighting}
+                              onCheckedChange={setRimLighting}
+                            />
+                            <label htmlFor="rim-lighting" className="text-sm text-stone-700">
+                              Rim lighting
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="macro-detail"
+                              checked={macroDetail}
+                              onCheckedChange={setMacroDetail}
+                            />
+                            <label htmlFor="macro-detail" className="text-sm text-stone-700">
+                              Macro detail
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Advanced Options */}
                 {detectedSubjectType && subjectInput && (
                   <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                     <CardHeader>
                       <CardTitle className="text-stone-800 flex items-center gap-2 cursor-pointer" onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}>
-                        <div className="w-8 h-8 bg-stone-400 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                        <div className="w-8 h-8 bg-stone-400 text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
                         Fine-tune Details (Optional)
                         {showAdvancedOptions ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </CardTitle>
