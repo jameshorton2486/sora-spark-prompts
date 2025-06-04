@@ -6,255 +6,516 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Sparkles, Wand2, Camera, Film, Palette, Users, Landscape } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Copy, Sparkles, Camera, Users, Palette, Mountain } from "lucide-react";
 import { toast } from "sonner";
 
 const Index = () => {
-  const [prompt, setPrompt] = useState("");
-  const [selectedStyle, setSelectedStyle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  
+  // Subject Identity
+  const [ageRange, setAgeRange] = useState("");
+  const [gender, setGender] = useState("");
+  const [ethnicity, setEthnicity] = useState("");
+  const [facialFeatures, setFacialFeatures] = useState("");
 
-  const promptStyles = [
-    { value: "cinematic", label: "Cinematic", description: "Movie-like quality with dramatic lighting" },
-    { value: "documentary", label: "Documentary", description: "Realistic, natural style" },
-    { value: "anime", label: "Anime", description: "Japanese animation style" },
-    { value: "vintage", label: "Vintage", description: "Retro, nostalgic aesthetic" },
-    { value: "futuristic", label: "Futuristic", description: "Sci-fi, high-tech visuals" },
+  // Lighting
+  const [lightingType, setLightingType] = useState("");
+
+  // Makeup & Accessories
+  const [selectedMakeup, setSelectedMakeup] = useState<string[]>([]);
+
+  // Wardrobe
+  const [wardrobeStyle, setWardrobeStyle] = useState("");
+  const [material, setMaterial] = useState("");
+
+  // Camera & Lens
+  const [cameraStyle, setCameraStyle] = useState("");
+
+  // Pose & Expression
+  const [poseExpression, setPoseExpression] = useState("");
+
+  // Setting & Environment
+  const [setting, setSetting] = useState("");
+
+  // Composition & Quality
+  const [composition, setComposition] = useState("");
+
+  // Mood & Tone
+  const [moodTone, setMoodTone] = useState("");
+
+  // Color Palette
+  const [colorPalette, setColorPalette] = useState("");
+
+  const ageRanges = [
+    "Child (5-12)", "Teenager (13-19)", "Young Adult (20-30)", 
+    "Adult (30-50)", "Middle-aged (50-65)", "Senior (65+)"
   ];
 
-  const categories = [
-    { value: "nature", label: "Nature", icon: Landscape },
-    { value: "people", label: "People", icon: Users },
-    { value: "abstract", label: "Abstract", icon: Palette },
-    { value: "action", label: "Action", icon: Film },
+  const genders = ["Male", "Female", "Non-binary", "Androgynous"];
+
+  const ethnicities = [
+    "Asian", "Black/African", "Caucasian/White", "Hispanic/Latino", 
+    "Middle Eastern", "Native American", "Pacific Islander", "Mixed Heritage"
   ];
 
-  const samplePrompts = [
-    "A serene forest with golden sunlight filtering through the trees, gentle wind moving the leaves",
-    "A person walking through a bustling Tokyo street at night, neon lights reflecting on wet pavement",
-    "Ocean waves crashing against dramatic cliffs during a stunning sunset",
-    "A dancer performing in slow motion, colorful fabric flowing gracefully around them",
-    "Time-lapse of clouds forming and dispersing over a mountain landscape",
+  const facialFeaturesOptions = [
+    "Sharp jawline", "Soft features", "High cheekbones", "Full lips", 
+    "Defined eyebrows", "Freckles", "Dimples", "Scar details"
   ];
 
-  const enhancementTips = [
-    "Add camera movements (zoom, pan, tilt)",
-    "Specify lighting conditions (golden hour, soft lighting)",
-    "Include emotional descriptors (peaceful, energetic, mysterious)",
-    "Mention specific details (textures, colors, atmosphere)",
-    "Add temporal elements (slow motion, time-lapse)",
+  const lightingOptions = [
+    "Soft natural light", "Harsh flash", "Directional studio light", 
+    "Golden hour", "Candlelight", "Overexposed", "Rim lighting", "Low key lighting"
   ];
 
-  const copyToClipboard = () => {
-    if (!prompt.trim()) {
-      toast.error("Please write a prompt first!");
+  const makeupOptions = [
+    "Minimal makeup", "Glam makeup", "Gold/painterly", "Freckles", 
+    "Piercings", "Statement jewelry", "Vintage accessories", "Modern minimalist"
+  ];
+
+  const wardrobeStyles = [
+    "Vintage", "Casual streetwear", "High fashion", "Business formal", 
+    "Bohemian", "Minimalist", "Avant-garde", "Traditional cultural"
+  ];
+
+  const materials = [
+    "Linen", "Velvet", "Leather", "Silk", "Denim", "Cashmere", "Cotton", "Satin"
+  ];
+
+  const cameraStyles = [
+    "Macro shot", "Film camera", "90s digital", "DSLR 4K", 
+    "Cinematic", "Grainy texture", "Vintage Polaroid", "Professional studio"
+  ];
+
+  const poseExpressions = [
+    "Looking into camera", "Candid moment", "Dynamic motion", "Profile view", 
+    "Three-quarter turn", "Laughing naturally", "Contemplative gaze", "Action pose"
+  ];
+
+  const settings = [
+    "Urban street", "Professional studio", "Antique room", "Balcony at night", 
+    "Natural landscape", "Coffee shop", "Art gallery", "Rooftop terrace"
+  ];
+
+  const compositions = [
+    "Ultra close-up", "3/4 body shot", "Full body", "16:9 aspect ratio", 
+    "Bokeh background", "Shallow depth of field", "Symmetrical framing", "Rule of thirds"
+  ];
+
+  const moodTones = [
+    "Ethereal", "Dramatic", "Editorial", "Peaceful", "Gritty realism", 
+    "Romantic", "Powerful", "Mysterious"
+  ];
+
+  const colorPalettes = [
+    "Warm neutrals", "High contrast", "Low saturation", "Muted tones", 
+    "Vibrant colors", "Monochromatic", "Earth tones", "Cool blues and greys"
+  ];
+
+  const handleMakeupChange = (makeup: string, checked: boolean) => {
+    if (checked) {
+      setSelectedMakeup([...selectedMakeup, makeup]);
+    } else {
+      setSelectedMakeup(selectedMakeup.filter(item => item !== makeup));
+    }
+  };
+
+  const generatePrompt = () => {
+    const components = [];
+    
+    if (ageRange || gender || ethnicity) {
+      let subject = "";
+      if (ageRange) subject += ageRange.toLowerCase();
+      if (gender) subject += (subject ? " " : "") + gender.toLowerCase();
+      if (ethnicity) subject += (subject ? " " : "") + ethnicity.toLowerCase();
+      if (subject) components.push(subject + " person");
+    }
+
+    if (facialFeatures) components.push(`with ${facialFeatures.toLowerCase()}`);
+    if (selectedMakeup.length > 0) components.push(`featuring ${selectedMakeup.join(", ").toLowerCase()}`);
+    if (wardrobeStyle) {
+      let wardrobe = wardrobeStyle.toLowerCase();
+      if (material) wardrobe += ` ${material.toLowerCase()}`;
+      components.push(`wearing ${wardrobe}`);
+    }
+    if (poseExpression) components.push(poseExpression.toLowerCase());
+    if (setting) components.push(`in ${setting.toLowerCase()}`);
+    if (lightingType) components.push(`with ${lightingType.toLowerCase()}`);
+    if (cameraStyle) components.push(`shot with ${cameraStyle.toLowerCase()}`);
+    if (composition) components.push(composition.toLowerCase());
+    if (moodTone) components.push(`${moodTone.toLowerCase()} mood`);
+    if (colorPalette) components.push(`${colorPalette.toLowerCase()} color palette`);
+
+    const finalPrompt = components.join(", ") + ", ultra-high quality, photorealistic";
+    setGeneratedPrompt(finalPrompt);
+  };
+
+  const copyPrompt = () => {
+    if (!generatedPrompt.trim()) {
+      toast.error("Please generate a prompt first!");
       return;
     }
-    navigator.clipboard.writeText(prompt);
+    navigator.clipboard.writeText(generatedPrompt);
     toast.success("Prompt copied to clipboard!");
   };
 
-  const enhancePrompt = () => {
-    if (!prompt.trim()) {
-      toast.error("Please write a prompt first!");
-      return;
-    }
-    
-    let enhanced = prompt;
-    
-    if (selectedStyle) {
-      const style = promptStyles.find(s => s.value === selectedStyle);
-      enhanced += `, ${style?.description.toLowerCase()}`;
-    }
-    
-    enhanced += ", high quality, detailed, smooth motion";
-    setPrompt(enhanced);
-    toast.success("Prompt enhanced!");
+  const clearAll = () => {
+    setAgeRange("");
+    setGender("");
+    setEthnicity("");
+    setFacialFeatures("");
+    setLightingType("");
+    setSelectedMakeup([]);
+    setWardrobeStyle("");
+    setMaterial("");
+    setCameraStyle("");
+    setPoseExpression("");
+    setSetting("");
+    setComposition("");
+    setMoodTone("");
+    setColorPalette("");
+    setGeneratedPrompt("");
   };
 
-  const loadSample = (sample: string) => {
-    setPrompt(sample);
-    toast.success("Sample prompt loaded!");
-  };
-
-  const clearPrompt = () => {
-    setPrompt("");
-    setSelectedStyle("");
-    setSelectedCategory("");
-  };
+  // Auto-generate prompt when selections change
+  useState(() => {
+    generatePrompt();
+  }, [ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-full">
-              <Camera className="h-8 w-8 text-white" />
+            <div className="p-3 bg-amber-600/10 backdrop-blur-sm rounded-full">
+              <Camera className="h-8 w-8 text-amber-700" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white">
-              Sora Prompt Generator
+            <h1 className="text-4xl md:text-6xl font-serif font-bold text-stone-800">
+              Sora Prompt Builder
             </h1>
           </div>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Create stunning video prompts for OpenAI's Sora with our intelligent generator
+          <p className="text-xl text-stone-600 max-w-2xl mx-auto font-light">
+            Create hyper-realistic prompts for stunning AI-generated imagery
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <Tabs defaultValue="generator" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 bg-white/10 backdrop-blur-sm">
-              <TabsTrigger value="generator" className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600">
-                Generator
-              </TabsTrigger>
-              <TabsTrigger value="samples" className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600">
-                Samples
-              </TabsTrigger>
-              <TabsTrigger value="tips" className="text-white data-[state=active]:bg-white data-[state=active]:text-purple-600">
-                Tips
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="generator" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Categories */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Subject Identity */}
+              <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Wand2 className="h-5 w-5" />
-                    Prompt Generator
+                  <CardTitle className="text-stone-800 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-amber-600" />
+                    Subject Identity
                   </CardTitle>
-                  <CardDescription className="text-white/70">
-                    Craft your perfect Sora video prompt with style and category options
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Age Range</label>
+                    <Select value={ageRange} onValueChange={setAgeRange}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select age range" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {ageRanges.map((age) => (
+                          <SelectItem key={age} value={age}>{age}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Gender</label>
+                    <Select value={gender} onValueChange={setGender}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {genders.map((g) => (
+                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Ethnicity</label>
+                    <Select value={ethnicity} onValueChange={setEthnicity}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select ethnicity" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {ethnicities.map((e) => (
+                          <SelectItem key={e} value={e}>{e}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Facial Features</label>
+                    <Select value={facialFeatures} onValueChange={setFacialFeatures}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select features" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {facialFeaturesOptions.map((f) => (
+                          <SelectItem key={f} value={f}>{f}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Lighting & Atmosphere */}
+              <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-stone-800">Lighting & Atmosphere</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Lighting Type</label>
+                    <Select value={lightingType} onValueChange={setLightingType}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select lighting" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {lightingOptions.map((light) => (
+                          <SelectItem key={light} value={light}>{light}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Makeup & Accessories */}
+              <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-stone-800">Makeup & Accessories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {makeupOptions.map((makeup) => (
+                      <div key={makeup} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={makeup}
+                          checked={selectedMakeup.includes(makeup)}
+                          onCheckedChange={(checked) => handleMakeupChange(makeup, checked as boolean)}
+                        />
+                        <label htmlFor={makeup} className="text-sm text-stone-700">{makeup}</label>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Wardrobe & Style */}
+              <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-stone-800">Wardrobe & Style</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Style</label>
+                    <Select value={wardrobeStyle} onValueChange={setWardrobeStyle}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select style" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {wardrobeStyles.map((style) => (
+                          <SelectItem key={style} value={style}>{style}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium text-stone-700 mb-2 block">Material</label>
+                    <Select value={material} onValueChange={setMaterial}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select material" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {materials.map((mat) => (
+                          <SelectItem key={mat} value={mat}>{mat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Technical Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Camera & Lens</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={cameraStyle} onValueChange={setCameraStyle}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select camera style" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {cameraStyles.map((camera) => (
+                          <SelectItem key={camera} value={camera}>{camera}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Pose & Expression</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={poseExpression} onValueChange={setPoseExpression}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select pose" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {poseExpressions.map((pose) => (
+                          <SelectItem key={pose} value={pose}>{pose}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Environment & Mood */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Setting</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={setting} onValueChange={setSetting}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select setting" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {settings.map((set) => (
+                          <SelectItem key={set} value={set}>{set}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Composition</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={composition} onValueChange={setComposition}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select composition" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {compositions.map((comp) => (
+                          <SelectItem key={comp} value={comp}>{comp}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Final Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Mood & Tone</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={moodTone} onValueChange={setMoodTone}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select mood" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {moodTones.map((mood) => (
+                          <SelectItem key={mood} value={mood}>{mood}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-stone-800">Color Palette</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={colorPalette} onValueChange={setColorPalette}>
+                      <SelectTrigger className="bg-white border-stone-300">
+                        <SelectValue placeholder="Select palette" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {colorPalettes.map((palette) => (
+                          <SelectItem key={palette} value={palette}>{palette}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Right Column - Generated Prompt */}
+            <div className="lg:col-span-1">
+              <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg sticky top-8">
+                <CardHeader>
+                  <CardTitle className="text-stone-800 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-amber-600" />
+                    Generated Prompt
+                  </CardTitle>
+                  <CardDescription className="text-stone-600">
+                    Your AI prompt updates automatically as you make selections
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Style and Category Selection */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-white mb-2 block">Style</label>
-                      <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                          <SelectValue placeholder="Choose a style" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {promptStyles.map((style) => (
-                            <SelectItem key={style.value} value={style.value}>
-                              <div>
-                                <div className="font-medium">{style.label}</div>
-                                <div className="text-sm text-gray-500">{style.description}</div>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium text-white mb-2 block">Category</label>
-                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                          <SelectValue placeholder="Choose a category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.value} value={category.value}>
-                              <div className="flex items-center gap-2">
-                                <category.icon className="h-4 w-4" />
-                                {category.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={generatedPrompt}
+                    readOnly
+                    placeholder="Your generated prompt will appear here..."
+                    className="min-h-40 bg-stone-50 border-stone-300 text-stone-700 resize-none"
+                  />
+                  
+                  <div className="flex justify-between items-center">
+                    <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                      {generatedPrompt.length} characters
+                    </Badge>
                   </div>
 
-                  {/* Prompt Input */}
-                  <div>
-                    <label className="text-sm font-medium text-white mb-2 block">Your Prompt</label>
-                    <Textarea
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Describe the video you want to create... Be specific about movements, lighting, camera angles, and mood."
-                      className="min-h-32 bg-white/10 border-white/20 text-white placeholder:text-white/50 resize-none"
-                    />
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-sm text-white/70">
-                        {prompt.length} characters
-                      </span>
-                      <Badge 
-                        variant={prompt.length > 500 ? "destructive" : "secondary"}
-                        className="bg-white/10 text-white"
-                      >
-                        {prompt.length > 500 ? "Too long" : "Good length"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={enhancePrompt} className="bg-white text-purple-600 hover:bg-white/90">
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Enhance Prompt
-                    </Button>
-                    <Button onClick={copyToClipboard} variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <div className="flex flex-col gap-3">
+                    <Button 
+                      onClick={copyPrompt} 
+                      className="bg-amber-600 text-white hover:bg-amber-700 w-full"
+                    >
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Prompt
                     </Button>
-                    <Button onClick={clearPrompt} variant="outline" className="border-white/20 text-white hover:bg-white/10">
-                      Clear
+                    <Button 
+                      onClick={clearAll} 
+                      variant="outline" 
+                      className="border-stone-300 text-stone-700 hover:bg-stone-50 w-full"
+                    >
+                      Clear All
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="samples" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Sample Prompts</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Get inspired by these example prompts
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    {samplePrompts.map((sample, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
-                        onClick={() => loadSample(sample)}
-                      >
-                        <p className="text-white">{sample}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="tips" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Enhancement Tips</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Make your prompts more effective with these suggestions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    {enhancementTips.map((tip, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-white/5 rounded-lg">
-                        <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-xs text-white font-medium">{index + 1}</span>
-                        </div>
-                        <p className="text-white">{tip}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </div>
