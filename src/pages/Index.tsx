@@ -129,16 +129,54 @@ const Index = () => {
   ];
 
   const visualEnhancers = [
+    // Magical
     "surrounded by glowing butterflies made of glass",
-    "floating through a sea of violet fog with reflections of stars",
-    "lit by the glow of an unseen fire behind the horizon",
-    "with crystalline droplets of light cascading around",
-    "emerging from shadows that dance like living smoke",
-    "bathed in ethereal moonbeams filtering through ancient trees",
-    "reflected in pools of liquid mercury",
-    "adorned with fragments of rainbow light",
-    "suspended in time within a sphere of shimmering energy",
-    "crowned with delicate frost patterns that sparkle like diamonds"
+    "lit by floating orbs of ancient light",
+    "with wings made of stained glass, shimmering in moonlight",
+    "accompanied by ethereal sprites dancing in the air",
+    "crowned with a halo of crystalline dewdrops",
+    
+    // Cinematic/Drama
+    "backlit by a massive glowing moon",
+    "captured in a single beam of sunlight piercing fog",
+    "in high-contrast spotlight in a smoky, noir setting",
+    "silhouetted against dramatic storm clouds",
+    "emerging from shadows with cinematic rim lighting",
+    
+    // Surreal/Dreamlike
+    "in a gravity-defying scene in a pastel sky",
+    "with objects floating above water like silent dreams",
+    "beneath clouds shaped like human faces drifting slowly",
+    "reflected infinitely in floating mirrors",
+    "suspended in time within liquid amber",
+    
+    // Nature Power
+    "with thunderstorm cracking in the distance",
+    "surrounded by petals swirling in the wind",
+    "with golden leaves suspended in midair",
+    "as lightning illuminates the scene in electric blue",
+    "amid a whirlwind of autumn colors",
+    
+    // Cosmic/Otherworld
+    "floating in a galaxy with stars reflecting off water",
+    "under an alien sun casting green light",
+    "with city skyline from another dimension in background",
+    "bathed in the glow of twin moons",
+    "surrounded by nebula clouds in deep space",
+    
+    // Vintage/Timeless
+    "with 1960s film-style lighting",
+    "photographed with grainy vintage camera aesthetic",
+    "in sepia tones with hand-tinted highlights",
+    "captured on expired Polaroid film",
+    "with retro color grading and film grain",
+    
+    // Abstract & Experimental
+    "with faces melting into brushstroke textures",
+    "as time collapses in concentric circles around them",
+    "rendered as shattered porcelain and ink",
+    "dissolving into geometric fragments",
+    "painted with liquid light and shadow"
   ];
 
   const detectSubjectType = (input: string): SubjectType => {
