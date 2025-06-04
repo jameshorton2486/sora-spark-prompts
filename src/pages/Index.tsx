@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Copy, Sparkles, Camera, Users, Palette, Mountain, Shuffle, HelpCircle, Info, ChevronDown, ChevronRight, Film, Eye, Zap, Layers, Paintbrush, Square } from "lucide-react";
+import { Copy, Sparkles, Camera, Users, Palette, Mountain, Shuffle, HelpCircle, Info, ChevronDown, ChevronRight, Film, Eye, Zap, Layers, Paintbrush, Square, Sun, Sunrise, Moon, Flash } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
@@ -19,6 +19,7 @@ type SubjectType = "person" | "object" | "landscape" | "abstract" | "animal" | "
 type StyleType = "realistic" | "cinematic" | "surreal" | "vintage" | "fantasy" | "minimalist" | "";
 type MoodType = "peaceful" | "dramatic" | "emotional" | "dark" | "whimsical" | "";
 type CameraStyleType = "closeup" | "wide" | "portrait" | "vintage" | "soft" | "";
+type LightingType = "daylight" | "golden" | "moonlit" | "studio" | "flash" | "candlelight" | "";
 
 const Index = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState("");
@@ -27,6 +28,7 @@ const Index = () => {
   const [selectedStyle, setSelectedStyle] = useState<StyleType>("");
   const [selectedMood, setSelectedMood] = useState<MoodType>("");
   const [selectedCameraStyle, setSelectedCameraStyle] = useState<CameraStyleType>("");
+  const [selectedLighting, setSelectedLighting] = useState<LightingType>("");
   const [makeItSpectacular, setMakeItSpectacular] = useState(false);
   const [spectacularIntensity, setSpectacularIntensity] = useState([1]); // 0=Subtle, 1=Cinematic, 2=Wild
   const [showAdvancedTips, setShowAdvancedTips] = useState(false);
@@ -141,6 +143,16 @@ const Index = () => {
     { id: "portrait", name: "Portrait Style", emoji: "🎥", description: "Ideal for people" },
     { id: "vintage", name: "Vintage Film Look", emoji: "🎞️", description: "Classic film aesthetic" },
     { id: "soft", name: "Soft Focus / Bokeh", emoji: "🖼️", description: "Dreamy blurred background" }
+  ];
+
+  // Lighting options
+  const lightingStyles = [
+    { id: "daylight", name: "Daylight", emoji: "☀️", icon: Sun, description: "Natural bright sunlight" },
+    { id: "golden", name: "Golden Hour", emoji: "🌅", icon: Sunrise, description: "Warm and dramatic lighting just before sunset" },
+    { id: "moonlit", name: "Moonlit", emoji: "🌙", icon: Moon, description: "Soft, cool nighttime lighting" },
+    { id: "studio", name: "Soft Studio", emoji: "💡", icon: Camera, description: "Professional controlled lighting" },
+    { id: "flash", name: "Flash / Harsh", emoji: "📸", icon: Flash, description: "Direct, bright artificial light" },
+    { id: "candlelight", name: "Candlelight / Fire Glow", emoji: "🔥", icon: Zap, description: "Warm, flickering ambient light" }
   ];
 
   // New data for enhanced features
@@ -347,6 +359,25 @@ const Index = () => {
     }
   };
 
+  const getLightingModifier = (lighting: LightingType): string => {
+    switch (lighting) {
+      case "daylight":
+        return "bright natural daylight, clear and vibrant";
+      case "golden":
+        return "golden hour lighting, warm sunset glow";
+      case "moonlit":
+        return "soft moonlight, cool blue tones, night atmosphere";
+      case "studio":
+        return "professional studio lighting, soft and even";
+      case "flash":
+        return "direct flash lighting, high contrast, sharp shadows";
+      case "candlelight":
+        return "warm candlelight, flickering fire glow, intimate atmosphere";
+      default:
+        return "";
+    }
+  };
+
   const getSpectacularEnhancer = (): string => {
     const intensity = spectacularIntensity[0];
     let enhancers: string[];
@@ -414,6 +445,12 @@ const Index = () => {
       if (cameraStyleModifier) components.push(cameraStyleModifier);
     }
 
+    // Add lighting modifier
+    if (selectedLighting) {
+      const lightingModifier = getLightingModifier(selectedLighting);
+      if (lightingModifier) components.push(lightingModifier);
+    }
+
     // Add advanced camera settings
     if (shallowDepth) components.push("shallow depth of field");
     if (rimLighting) components.push("rim lighting");
@@ -437,12 +474,18 @@ const Index = () => {
     toast.success("Prompt copied to clipboard!");
   };
 
+  const refreshPrompt = () => {
+    generatePrompt();
+    toast.success("Prompt refreshed with new variations!");
+  };
+
   const clearAll = () => {
     setSubjectInput("");
     setDetectedSubjectType("");
     setSelectedStyle("");
     setSelectedMood("");
     setSelectedCameraStyle("");
+    setSelectedLighting("");
     setAgeRange("");
     setGender("");
     setEthnicity("");
@@ -478,7 +521,7 @@ const Index = () => {
 
   useEffect(() => {
     generatePrompt();
-  }, [subjectInput, selectedStyle, selectedMood, selectedCameraStyle, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular, spectacularIntensity, shallowDepth, rimLighting, macroDetail]);
+  }, [subjectInput, selectedStyle, selectedMood, selectedCameraStyle, selectedLighting, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular, spectacularIntensity, shallowDepth, rimLighting, macroDetail]);
 
   const relevantSections = getRelevantSections(detectedSubjectType);
 
@@ -688,19 +731,25 @@ const Index = () => {
                     <CardContent>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                         {moods.map((mood) => (
-                          <button
-                            key={mood.id}
-                            onClick={() => setSelectedMood(mood.id as MoodType)}
-                            className={`p-3 rounded-lg border-2 transition-all text-center ${
-                              selectedMood === mood.id
-                                ? "border-amber-500 bg-amber-50"
-                                : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
-                            }`}
-                          >
-                            <div className="text-2xl mb-1">{mood.emoji}</div>
-                            <div className="font-medium text-stone-800 text-sm">{mood.name}</div>
-                            <p className="text-xs text-stone-600 mt-1">{mood.description}</p>
-                          </button>
+                          <Tooltip key={mood.id}>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => setSelectedMood(mood.id as MoodType)}
+                                className={`p-3 rounded-lg border-2 transition-all text-center ${
+                                  selectedMood === mood.id
+                                    ? "border-amber-500 bg-amber-50"
+                                    : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                                }`}
+                              >
+                                <div className="text-2xl mb-1">{mood.emoji}</div>
+                                <div className="font-medium text-stone-800 text-sm">{mood.name}</div>
+                                <p className="text-xs text-stone-600 mt-1">{mood.description}</p>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{mood.name}: {mood.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         ))}
                       </div>
                     </CardContent>
@@ -722,21 +771,27 @@ const Index = () => {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {cameraStyleOptions.map((camera) => (
-                          <button
-                            key={camera.id}
-                            onClick={() => setSelectedCameraStyle(camera.id as CameraStyleType)}
-                            className={`p-3 rounded-lg border-2 transition-all text-left ${
-                              selectedCameraStyle === camera.id
-                                ? "border-amber-500 bg-amber-50"
-                                : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-lg">{camera.emoji}</span>
-                              <span className="font-medium text-stone-800 text-sm">{camera.name}</span>
-                            </div>
-                            <p className="text-xs text-stone-600">{camera.description}</p>
-                          </button>
+                          <Tooltip key={camera.id}>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => setSelectedCameraStyle(camera.id as CameraStyleType)}
+                                className={`p-3 rounded-lg border-2 transition-all text-left ${
+                                  selectedCameraStyle === camera.id
+                                    ? "border-amber-500 bg-amber-50"
+                                    : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-lg">{camera.emoji}</span>
+                                  <span className="font-medium text-stone-800 text-sm">{camera.name}</span>
+                                </div>
+                                <p className="text-xs text-stone-600">{camera.description}</p>
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{camera.name}: {camera.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         ))}
                       </div>
 
@@ -757,7 +812,7 @@ const Index = () => {
                             <Checkbox
                               id="shallow-depth"
                               checked={shallowDepth}
-                              onCheckedChange={setShallowDepth}
+                              onCheckedChange={(checked) => setShallowDepth(checked === true)}
                             />
                             <label htmlFor="shallow-depth" className="text-sm text-stone-700">
                               Shallow depth of field
@@ -767,7 +822,7 @@ const Index = () => {
                             <Checkbox
                               id="rim-lighting"
                               checked={rimLighting}
-                              onCheckedChange={setRimLighting}
+                              onCheckedChange={(checked) => setRimLighting(checked === true)}
                             />
                             <label htmlFor="rim-lighting" className="text-sm text-stone-700">
                               Rim lighting
@@ -777,7 +832,7 @@ const Index = () => {
                             <Checkbox
                               id="macro-detail"
                               checked={macroDetail}
-                              onCheckedChange={setMacroDetail}
+                              onCheckedChange={(checked) => setMacroDetail(checked === true)}
                             />
                             <label htmlFor="macro-detail" className="text-sm text-stone-700">
                               Macro detail
@@ -789,12 +844,58 @@ const Index = () => {
                   </Card>
                 )}
 
+                {/* Step 6: Lighting Made Easy */}
+                {subjectInput && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-stone-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
+                        Lighting Made Easy (Optional)
+                      </CardTitle>
+                      <CardDescription className="text-stone-600">
+                        Choose the lighting style for your scene
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {lightingStyles.map((lighting) => {
+                          const IconComponent = lighting.icon;
+                          return (
+                            <Tooltip key={lighting.id}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={() => setSelectedLighting(lighting.id as LightingType)}
+                                  className={`p-4 rounded-lg border-2 transition-all text-center ${
+                                    selectedLighting === lighting.id
+                                      ? "border-amber-500 bg-amber-50"
+                                      : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                                  }`}
+                                >
+                                  <div className="flex flex-col items-center gap-2 mb-2">
+                                    <div className="text-2xl">{lighting.emoji}</div>
+                                    <IconComponent className="h-5 w-5 text-amber-600" />
+                                    <span className="font-medium text-stone-800 text-sm">{lighting.name}</span>
+                                  </div>
+                                  <p className="text-xs text-stone-600">{lighting.description}</p>
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{lighting.name}: {lighting.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Advanced Options */}
                 {detectedSubjectType && subjectInput && (
                   <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                     <CardHeader>
                       <CardTitle className="text-stone-800 flex items-center gap-2 cursor-pointer" onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}>
-                        <div className="w-8 h-8 bg-stone-400 text-white rounded-full flex items-center justify-center text-sm font-bold">6</div>
+                        <div className="w-8 h-8 bg-stone-400 text-white rounded-full flex items-center justify-center text-sm font-bold">7</div>
                         Fine-tune Details (Optional)
                         {showAdvancedOptions ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </CardTitle>
@@ -940,7 +1041,7 @@ const Index = () => {
 
               {/* Right Column - Generated Prompt & Features */}
               <div className="lg:col-span-1 space-y-6">
-                {/* Generated Prompt */}
+                {/* Step 7: Final Output */}
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg sticky top-8">
                   <CardHeader>
                     <CardTitle className="text-stone-800 flex items-center gap-2">
@@ -963,6 +1064,7 @@ const Index = () => {
                       <Badge variant="secondary" className="bg-amber-100 text-amber-800">
                         {generatedPrompt.length} characters
                       </Badge>
+                      <p className="text-xs text-stone-500">💡 Tip: Click to highlight and copy to Sora!</p>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -973,6 +1075,14 @@ const Index = () => {
                       >
                         <Copy className="h-4 w-4 mr-2" />
                         Copy Prompt
+                      </Button>
+                      <Button 
+                        onClick={refreshPrompt} 
+                        variant="outline" 
+                        className="border-amber-300 text-amber-700 hover:bg-amber-50 w-full"
+                        disabled={!generatedPrompt.trim()}
+                      >
+                        🔁 Refresh for another version
                       </Button>
                       <Button 
                         onClick={clearAll} 
