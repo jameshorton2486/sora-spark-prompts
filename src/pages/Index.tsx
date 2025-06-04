@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Copy, Sparkles, Camera, Users, Palette, Mountain, Shuffle, HelpCircle, Info, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ApiKeyInput } from "@/components/ApiKeyInput";
+import { AiEnhancer } from "@/components/AiEnhancer";
 
 type SubjectType = "person" | "object" | "landscape" | "abstract" | "animal" | "scene" | "";
 
@@ -20,6 +22,7 @@ const Index = () => {
   const [makeItSpectacular, setMakeItSpectacular] = useState(false);
   const [showAdvancedTips, setShowAdvancedTips] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [apiKey, setApiKey] = useState("");
   
   // Subject Identity
   const [ageRange, setAgeRange] = useState("");
@@ -683,6 +686,15 @@ const Index = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* AI Enhancement */}
+                {generatedPrompt && (
+                  <AiEnhancer 
+                    currentPrompt={generatedPrompt}
+                    apiKey={apiKey}
+                    onEnhancedPrompt={setGeneratedPrompt}
+                  />
+                )}
 
                 {/* Sample Prompts Panel */}
                 <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
