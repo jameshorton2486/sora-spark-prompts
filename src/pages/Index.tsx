@@ -7,19 +7,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Copy, Sparkles, Camera, Users, Palette, Mountain, Shuffle, HelpCircle, Info, ChevronDown, ChevronRight } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Copy, Sparkles, Camera, Users, Palette, Mountain, Shuffle, HelpCircle, Info, ChevronDown, ChevronRight, Film, Eye, Zap, Layers, Paintbrush, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { AiEnhancer } from "@/components/AiEnhancer";
 
 type SubjectType = "person" | "object" | "landscape" | "abstract" | "animal" | "scene" | "";
+type StyleType = "realistic" | "cinematic" | "surreal" | "vintage" | "fantasy" | "minimalist" | "";
 
 const Index = () => {
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [subjectInput, setSubjectInput] = useState("");
   const [detectedSubjectType, setDetectedSubjectType] = useState<SubjectType>("");
+  const [selectedStyle, setSelectedStyle] = useState<StyleType>("");
   const [makeItSpectacular, setMakeItSpectacular] = useState(false);
+  const [spectacularIntensity, setSpectacularIntensity] = useState([1]); // 0=Subtle, 1=Cinematic, 2=Wild
   const [showAdvancedTips, setShowAdvancedTips] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [apiKey, setApiKey] = useState("");
@@ -58,70 +62,44 @@ const Index = () => {
   // Color Palette
   const [colorPalette, setColorPalette] = useState("");
 
-  const ageRanges = [
-    "Child (5-12)", "Teenager (13-19)", "Young Adult (20-30)", 
-    "Adult (30-50)", "Middle-aged (50-65)", "Senior (65+)"
-  ];
-
-  const genders = ["Male", "Female", "Non-binary", "Androgynous"];
-
-  const ethnicities = [
-    "Asian", "Black/African", "Caucasian/White", "Hispanic/Latino", 
-    "Middle Eastern", "Native American", "Pacific Islander", "Mixed Heritage"
-  ];
-
-  const facialFeaturesOptions = [
-    "Sharp jawline", "Soft features", "High cheekbones", "Full lips", 
-    "Defined eyebrows", "Freckles", "Dimples", "Scar details"
-  ];
-
-  const lightingOptions = [
-    "Soft natural light", "Harsh flash", "Directional studio light", 
-    "Golden hour", "Candlelight", "Overexposed", "Rim lighting", "Low key lighting"
-  ];
-
-  const makeupOptions = [
-    "Minimal makeup", "Glam makeup", "Gold/painterly", "Freckles", 
-    "Piercings", "Statement jewelry", "Vintage accessories", "Modern minimalist"
-  ];
-
-  const wardrobeStyles = [
-    "Vintage", "Casual streetwear", "High fashion", "Business formal", 
-    "Bohemian", "Minimalist", "Avant-garde", "Traditional cultural"
-  ];
-
-  const materials = [
-    "Linen", "Velvet", "Leather", "Silk", "Denim", "Cashmere", "Cotton", "Satin"
-  ];
-
-  const cameraStyles = [
-    "Macro shot", "Film camera", "90s digital", "DSLR 4K", 
-    "Cinematic", "Grainy texture", "Vintage Polaroid", "Professional studio"
-  ];
-
-  const poseExpressions = [
-    "Looking into camera", "Candid moment", "Dynamic motion", "Profile view", 
-    "Three-quarter turn", "Laughing naturally", "Contemplative gaze", "Action pose"
-  ];
-
-  const settings = [
-    "Urban street", "Professional studio", "Antique room", "Balcony at night", 
-    "Natural landscape", "Coffee shop", "Art gallery", "Rooftop terrace"
-  ];
-
-  const compositions = [
-    "Ultra close-up", "3/4 body shot", "Full body", "16:9 aspect ratio", 
-    "Bokeh background", "Shallow depth of field", "Symmetrical framing", "Rule of thirds"
-  ];
-
-  const moodTones = [
-    "Ethereal", "Dramatic", "Editorial", "Peaceful", "Gritty realism", 
-    "Romantic", "Powerful", "Mysterious"
-  ];
-
-  const colorPalettes = [
-    "Warm neutrals", "High contrast", "Low saturation", "Muted tones", 
-    "Vibrant colors", "Monochromatic", "Earth tones", "Cool blues and greys"
+  // Style definitions
+  const styles = [
+    { 
+      id: "realistic", 
+      name: "Realistic", 
+      icon: Camera, 
+      description: "Photorealistic, natural lighting"
+    },
+    { 
+      id: "cinematic", 
+      name: "Cinematic", 
+      icon: Film, 
+      description: "Movie-style, dramatic lighting"
+    },
+    { 
+      id: "surreal", 
+      name: "Surreal / Dreamlike", 
+      icon: Eye, 
+      description: "Imaginative, otherworldly"
+    },
+    { 
+      id: "vintage", 
+      name: "Vintage / Film", 
+      icon: Zap, 
+      description: "Retro, aged, film grain"
+    },
+    { 
+      id: "fantasy", 
+      name: "Fantasy / Mythic", 
+      icon: Layers, 
+      description: "Magical, epic, legendary"
+    },
+    { 
+      id: "minimalist", 
+      name: "Minimalist", 
+      icon: Square, 
+      description: "Clean, simple, focused"
+    }
   ];
 
   // New data for enhanced features
@@ -132,55 +110,28 @@ const Index = () => {
     { type: "scene", prompt: "Medieval marketplace bustling with activity, film camera style, warm candlelight, dynamic motion, full body shots, gritty realism, earth tones" }
   ];
 
-  const visualEnhancers = [
-    // Magical
-    "surrounded by glowing butterflies made of glass",
-    "lit by floating orbs of ancient light",
-    "with wings made of stained glass, shimmering in moonlight",
-    "accompanied by ethereal sprites dancing in the air",
-    "crowned with a halo of crystalline dewdrops",
-    
-    // Cinematic/Drama
+  const visualEnhancersSubtle = [
+    "with soft golden hour lighting",
+    "in gentle morning mist",
+    "with delicate shadows",
+    "bathed in warm natural light",
+    "with subtle depth of field"
+  ];
+
+  const visualEnhancersCinematic = [
     "backlit by a massive glowing moon",
     "captured in a single beam of sunlight piercing fog",
     "in high-contrast spotlight in a smoky, noir setting",
     "silhouetted against dramatic storm clouds",
-    "emerging from shadows with cinematic rim lighting",
-    
-    // Surreal/Dreamlike
-    "in a gravity-defying scene in a pastel sky",
-    "with objects floating above water like silent dreams",
-    "beneath clouds shaped like human faces drifting slowly",
-    "reflected infinitely in floating mirrors",
-    "suspended in time within liquid amber",
-    
-    // Nature Power
-    "with thunderstorm cracking in the distance",
-    "surrounded by petals swirling in the wind",
-    "with golden leaves suspended in midair",
-    "as lightning illuminates the scene in electric blue",
-    "amid a whirlwind of autumn colors",
-    
-    // Cosmic/Otherworld
+    "emerging from shadows with cinematic rim lighting"
+  ];
+
+  const visualEnhancersWild = [
+    "surrounded by glowing butterflies made of glass",
     "floating in a galaxy with stars reflecting off water",
-    "under an alien sun casting green light",
-    "with city skyline from another dimension in background",
-    "bathed in the glow of twin moons",
-    "surrounded by nebula clouds in deep space",
-    
-    // Vintage/Timeless
-    "with 1960s film-style lighting",
-    "photographed with grainy vintage camera aesthetic",
-    "in sepia tones with hand-tinted highlights",
-    "captured on expired Polaroid film",
-    "with retro color grading and film grain",
-    
-    // Abstract & Experimental
-    "with faces melting into brushstroke textures",
-    "as time collapses in concentric circles around them",
-    "rendered as shattered porcelain and ink",
-    "dissolving into geometric fragments",
-    "painted with liquid light and shadow"
+    "with wings made of stained glass, shimmering in moonlight",
+    "suspended in time within liquid amber",
+    "as lightning illuminates the scene in electric blue"
   ];
 
   const exampleIdeas = {
@@ -302,6 +253,44 @@ const Index = () => {
     }
   };
 
+  const getStyleModifier = (style: StyleType): string => {
+    switch (style) {
+      case "realistic":
+        return "photorealistic, natural lighting, high detail";
+      case "cinematic":
+        return "cinematic composition, dramatic lighting, film-style";
+      case "surreal":
+        return "surreal, dreamlike, imaginative, otherworldly";
+      case "vintage":
+        return "vintage style, film grain, retro aesthetic, aged look";
+      case "fantasy":
+        return "fantasy style, magical, epic, mythical elements";
+      case "minimalist":
+        return "minimalist composition, clean lines, simple, focused";
+      default:
+        return "";
+    }
+  };
+
+  const getSpectacularEnhancer = (): string => {
+    const intensity = spectacularIntensity[0];
+    let enhancers: string[];
+    
+    switch (intensity) {
+      case 0: // Subtle
+        enhancers = visualEnhancersSubtle;
+        break;
+      case 2: // Wild
+        enhancers = visualEnhancersWild;
+        break;
+      default: // Cinematic
+        enhancers = visualEnhancersCinematic;
+        break;
+    }
+    
+    return enhancers[Math.floor(Math.random() * enhancers.length)];
+  };
+
   const generatePrompt = () => {
     const components = [];
     
@@ -332,12 +321,18 @@ const Index = () => {
     if (moodTone) components.push(`${moodTone.toLowerCase()} mood`);
     if (colorPalette) components.push(`${colorPalette.toLowerCase()} color palette`);
 
-    if (makeItSpectacular) {
-      const randomEnhancer = visualEnhancers[Math.floor(Math.random() * visualEnhancers.length)];
-      components.push(randomEnhancer);
+    // Add style modifier
+    if (selectedStyle) {
+      const styleModifier = getStyleModifier(selectedStyle);
+      if (styleModifier) components.push(styleModifier);
     }
 
-    const finalPrompt = components.join(", ") + ", ultra-high quality, photorealistic";
+    if (makeItSpectacular) {
+      const enhancer = getSpectacularEnhancer();
+      components.push(enhancer);
+    }
+
+    const finalPrompt = components.join(", ") + ", ultra-high quality";
     setGeneratedPrompt(finalPrompt);
   };
 
@@ -353,6 +348,7 @@ const Index = () => {
   const clearAll = () => {
     setSubjectInput("");
     setDetectedSubjectType("");
+    setSelectedStyle("");
     setAgeRange("");
     setGender("");
     setEthnicity("");
@@ -368,6 +364,8 @@ const Index = () => {
     setMoodTone("");
     setColorPalette("");
     setGeneratedPrompt("");
+    setMakeItSpectacular(false);
+    setSpectacularIntensity([1]);
     setShowAdvancedOptions(false);
   };
 
@@ -382,9 +380,18 @@ const Index = () => {
 
   useEffect(() => {
     generatePrompt();
-  }, [subjectInput, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular]);
+  }, [subjectInput, selectedStyle, ageRange, gender, ethnicity, facialFeatures, lightingType, selectedMakeup, wardrobeStyle, material, cameraStyle, poseExpression, setting, composition, moodTone, colorPalette, makeItSpectacular, spectacularIntensity]);
 
   const relevantSections = getRelevantSections(detectedSubjectType);
+
+  const getIntensityLabel = (value: number) => {
+    switch (value) {
+      case 0: return "💡 Subtle";
+      case 1: return "🎥 Cinematic";
+      case 2: return "💭 Wild/Surreal";
+      default: return "🎥 Cinematic";
+    }
+  };
 
   return (
     <TooltipProvider>
@@ -455,52 +462,130 @@ const Index = () => {
                         </div>
                       )}
                     </div>
-                    
-                    <div className="flex items-center justify-between pt-4 border-t border-stone-200">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="spectacular"
-                          checked={makeItSpectacular}
-                          onCheckedChange={setMakeItSpectacular}
-                        />
-                        <label htmlFor="spectacular" className="text-sm font-medium text-stone-700">
-                          ✨ Make It Spectacular
-                        </label>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <HelpCircle className="h-4 w-4 text-stone-500" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Adds cinematic, imaginative elements to make your prompt more visually stunning</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="advanced-tips"
-                          checked={showAdvancedTips}
-                          onCheckedChange={setShowAdvancedTips}
-                        />
-                        <label htmlFor="advanced-tips" className="text-sm font-medium text-stone-700">
-                          Advanced Tips
-                        </label>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
 
-                {/* Step 2: Advanced Options (conditionally shown) */}
+                {/* Step 2: Choose a Style */}
+                {subjectInput && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-stone-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                        Choose a Style
+                      </CardTitle>
+                      <CardDescription className="text-stone-600">
+                        Select a visual style for your prompt
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {styles.map((style) => {
+                          const IconComponent = style.icon;
+                          return (
+                            <button
+                              key={style.id}
+                              onClick={() => setSelectedStyle(style.id as StyleType)}
+                              className={`p-4 rounded-lg border-2 transition-all text-left ${
+                                selectedStyle === style.id
+                                  ? "border-amber-500 bg-amber-50"
+                                  : "border-stone-200 bg-white hover:border-amber-300 hover:bg-amber-50/50"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <IconComponent className="h-5 w-5 text-amber-600" />
+                                <span className="font-medium text-stone-800">{style.name}</span>
+                              </div>
+                              <p className="text-xs text-stone-600">{style.description}</p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Step 3: Enhance the Scene */}
+                {subjectInput && (
+                  <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-stone-800 flex items-center gap-2">
+                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                        Enhance the Scene (Optional)
+                      </CardTitle>
+                      <CardDescription className="text-stone-600">
+                        Add spectacular visual elements to make your prompt stand out
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="spectacular"
+                            checked={makeItSpectacular}
+                            onCheckedChange={setMakeItSpectacular}
+                          />
+                          <label htmlFor="spectacular" className="text-sm font-medium text-stone-700">
+                            ✨ Make It Spectacular
+                          </label>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="h-4 w-4 text-stone-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Adds cinematic, imaginative elements to make your prompt more visually stunning</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="advanced-tips"
+                            checked={showAdvancedTips}
+                            onCheckedChange={setShowAdvancedTips}
+                          />
+                          <label htmlFor="advanced-tips" className="text-sm font-medium text-stone-700">
+                            Advanced Tips
+                          </label>
+                        </div>
+                      </div>
+
+                      {makeItSpectacular && (
+                        <div className="space-y-4 p-4 bg-amber-50/50 rounded-lg border border-amber-200">
+                          <div>
+                            <label className="text-sm font-medium text-stone-700 mb-3 block">
+                              Enhancement Intensity: {getIntensityLabel(spectacularIntensity[0])}
+                            </label>
+                            <Slider
+                              value={spectacularIntensity}
+                              onValueChange={setSpectacularIntensity}
+                              max={2}
+                              min={0}
+                              step={1}
+                              className="w-full"
+                            />
+                            <div className="flex justify-between text-xs text-stone-500 mt-2">
+                              <span>💡 Subtle</span>
+                              <span>🎥 Cinematic</span>
+                              <span>💭 Wild/Surreal</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Advanced Options */}
                 {detectedSubjectType && subjectInput && (
                   <Card className="bg-white/70 backdrop-blur-sm border-stone-200 shadow-lg">
                     <CardHeader>
                       <CardTitle className="text-stone-800 flex items-center gap-2 cursor-pointer" onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}>
-                        <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                        Enhance Your Prompt (Optional)
+                        <div className="w-8 h-8 bg-stone-400 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                        Fine-tune Details (Optional)
                         {showAdvancedOptions ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </CardTitle>
                       <CardDescription className="text-stone-600">
-                        Fine-tune details for {detectedSubjectType} prompts
+                        Advanced options for {detectedSubjectType} prompts
                       </CardDescription>
                     </CardHeader>
                     {showAdvancedOptions && (
@@ -573,7 +658,6 @@ const Index = () => {
                           </div>
                         )}
 
-                        {/* Quick Enhancement Options */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {relevantSections.includes("lighting") && (
                             <div>
